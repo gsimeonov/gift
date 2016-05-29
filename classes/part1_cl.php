@@ -1,20 +1,11 @@
-<?php 
-    // First we execute our common code to connection to the database and start the session 
-    require("common.php"); 
-     
-    // This variable will be used to re-display the user's username to them in the 
-    // login form if they fail to enter the correct password.  It is initialized here 
-    // to an empty value, which will be shown if the user has not submitted the form. 
-    $submitted_username = ''; 
-     
-    // This if statement checks to determine whether the login form has been submitted 
-    // If it has, then the login code is run, otherwise the form is displayed 
-   
-    if(isset($_GET['send'])) {
-    
-    if(!empty($_POST)) 
-    { 
-        // This query retreives the user's information from the database using 
+<?php
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+// This query retreives the user's information from the database using 
         // their username. 
         $query = " 
             SELECT 
@@ -30,7 +21,7 @@
          
         // The parameter values 
         $query_params = array( 
-            ':username' => $_POST['username'] 
+            ':username' => $db_username 
         ); 
          
         try 
@@ -59,7 +50,7 @@
             // Using the password submitted by the user and the salt stored in the database, 
             // we now check to see whether the passwords match by hashing the submitted password 
             // and comparing it to the hashed version already stored in the database. 
-            $check_password = hash('sha256', $_POST['password'] . $row['salt']); 
+            $check_password = hash('sha256', $db_password . $row['salt']); 
             for($round = 0; $round < 65536; $round++) 
             { 
                 $check_password = hash('sha256', $check_password . $row['salt']); 
@@ -71,8 +62,7 @@
                 $login_ok = true; 
             } 
         } 
-         
-        // If the user logged in successfully, then we send them to the private members-only page 
+    // If the user logged in successfully, then we send them to the private members-only page 
         // Otherwise, we display a login failed message and show the login form again 
         if($login_ok) 
         { 
@@ -88,7 +78,7 @@
             // We will check this index on the private members-only page to determine whether 
             // or not the user is logged in.  We can also use it to retrieve 
             // the user's details. 
-            $_SESSION['user'] = $row; 
+            $db_session = $row; 
              
             // Redirect the user to the private members-only page. 
             header("Location: private.php"); 
@@ -98,7 +88,7 @@
         { 
 
             //print("Login Failed.");
-            $msg = "Wrong username or password";
+            echo "Wrong username or password";
             //header("Refresh:0;url=index.php?msg=$msg");
 	//header("Refresh:0; url=index.php");
             // Show them their username again so all they have to do is enter a new 
@@ -107,36 +97,7 @@
             // to any users (including the user that submitted them).  For more information: 
             // http://en.wikipedia.org/wiki/XSS_attack 
             //$submitted_username = htmlentities($_POST['username'], ENT_QUOTES, 'UTF-8'); 
-        } 
-    } 
-}
-     
-?>
-<html>
- <head>
-  <title>GIFT code</title>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<link rel="stylesheet" type="text/css" href="css/pstyle.css" media="all">
- </head>
- <body>
-<video autoplay muted poster="screenshot.jpg" id="background">
-<source src="images/Safeclose.mp4" type="video/mp4">
-</video>
-      <font size="5" color="red"><center> <b><?php echo ($msg !== null)?'<p>' . $msg . '</p>':null; ?></b> </center></font>
-  
-<div class="inner-container">
-<div class="box">      
-<h1>Please login</h1>
-<form  action="?send" method="post">
- <input type="text" placeholder="Username" name="username" value="" />
- <input type="password" placeholder="Password" name="password" value="" />
- <input type="submit" value="Login" />
- <a href="register.php">Register</a>
-</form>
+            } 
+            
+        
 
-</div>
-</div>
-
- </body>
-
-</html>
